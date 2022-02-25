@@ -1,4 +1,13 @@
 
+## Setup Submodule
+
+```
+git submodule init
+git submodule update
+cd app/common
+git checkout <branch>
+```
+
 ### Create Docker Network
 
 if network is not existed. please create it.
