@@ -1,0 +1,56 @@
+version: "3.5"
+
+services:
+    flask:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: flask-template
+        image: flask-template:1.0
+        environment:
+            - TZ=Asia/Taipei
+        ports:
+            - "5000:5000"
+        volumes:
+            - "./:/app"
+            - "./etc/supervisord.conf:/etc/supervisor.d/supervisord.conf"
+            - "./etc/supervisor.ini:/etc/supervisor.d/supervisor.ini"
+        networks:
+            - flask_network
+        restart: always
+        logging:
+            options:
+                max-size: 50m
+                max-file: "10"
+
+    flask_build:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: flask-template-build
+        image: flask-template:1.0
+        environment:
+            - TZ=Asia/Taipei
+        volumes:
+            - "./:/app"
+        networks:
+            - flask_network
+
+    flask_test:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: flask-template-test
+        image: flask-template:1.0
+        environment:
+            - TZ=Asia/Taipei
+        volumes:
+            - "./:/app"
+        networks:
+            - flask_network
+
+networks:
+    flask_network:
+        external: true
+        name: flask_network
+        driver: bridge

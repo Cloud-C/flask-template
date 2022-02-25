@@ -1,0 +1,45 @@
+version: "3.5"
+
+services:
+
+    redis:
+        image: redislabs/rejson:1.0.7
+        container_name: redis
+        ports:
+            - "6379:6379"
+        command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+        volumes:
+            - ./db/redis:/data
+            - ./conf/redis/redis.conf:/usr/local/etc/redis/redis.conf
+        networks:
+            - flask_network
+        restart: always
+
+    fluentd:
+        image: ${BUFFER_HOST}:1.0
+        build:
+            context: .
+            dockerfile: ./conf/fluentd/Dockerfile
+        container_name: ${BUFFER_HOST}
+        volumes:
+            - ./conf/fluentd/fluentd.conf:/fluentd/etc/fluentd.conf
+            - ./logs/fluentd:/fluentd/log
+        environment:
+            FLUENTD_CONF: fluentd.conf
+            ES_URL: ${ES_URL}
+            ES_USER: ${ES_USER}
+            ES_PASS: ${ES_PASS}
+            LOGSTASH_PREFIX: ${LOGSTASH_PREFIX}
+        networks:
+            - flask_network
+        restart: always
+        logging:
+            options:
+                max-size: 50m
+                max-file: '10'
+
+networks:
+    flask_network:
+        external: true
+        name: flask_network
+        driver: bridge
